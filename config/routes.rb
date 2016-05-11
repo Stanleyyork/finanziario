@@ -1,14 +1,4 @@
 Rails.application.routes.draw do
-  
-  get 'transactions/update'
-
-  get 'transactions/edit'
-
-  get 'transactions/destroy'
-
-  get 'transactions/index'
-
-  get 'transactions/show'
 
   get '/login' => 'sessions#new'
   post '/login' => 'sessions#create'
@@ -16,5 +6,8 @@ Rails.application.routes.draw do
 
   get '/signup' => 'users#new'
   post '/users' => 'users#create'
+
+  get '/' => 'users#show'
+  get '/settings' => 'users#edit'
 
 end
