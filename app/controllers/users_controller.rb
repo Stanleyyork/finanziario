@@ -13,6 +13,10 @@ class UsersController < ApplicationController
     end
   end
 
+  def show
+    @user = User.find(params[:id])
+  end
+
   def edit
     @user = User.find(current_user.id)
     @shared_users = User.where("id != ?", @user.id)

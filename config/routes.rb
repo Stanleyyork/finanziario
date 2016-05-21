@@ -10,6 +10,9 @@ Rails.application.routes.draw do
   get '/' => 'transactions#index'
   get '/settings' => 'users#edit'
 
+  get '/users/:id' => 'users#show'
+  get 'revenuecost' => 'transactions#revenuecost'
+
   resources :transactions do
     collection { post :import_csv }
   end

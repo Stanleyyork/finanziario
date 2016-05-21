@@ -13,4 +13,7 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
+//= require profile.js
+//= require Chart
+//= require excanvas
 //= require_tree .
