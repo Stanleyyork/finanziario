@@ -20,8 +20,7 @@ class CreateTransactions < ActiveRecord::Migration
       t.float :transaction_amount
       t.float :transaction_abs_amount
       t.string :transaction_debit_credit
-      t.string :shared_cost
-      t.string :boolean
+      t.boolean :shared_cost
       t.float :shared_percent
       t.integer :shared_user_id
       t.string :financial_institution

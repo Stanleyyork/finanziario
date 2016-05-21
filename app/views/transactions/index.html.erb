@@ -1,2 +1,8 @@
 <h1>Transactions#index</h1>
 <p>Find me in app/views/transactions/index.html.erb</p>
+<%= @label.count %><br>
+<%= @transaction_count %><br><br>
+<% @transactions.each do |t| %>
+	<%= t.inspect %>
+	<br><br>
+<% end %>

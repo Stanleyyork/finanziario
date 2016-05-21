@@ -1,42 +1,77 @@
 class ImportCsvProvider
-	include CSVImporter
+	require 'csv'
+	require 'roo'
 
-	def initial_import(current_user)
+	def initialize(current_user, shared_user_id, shared_percent)
+		@current_user = current_user
+		@shared_user_id = shared_user_id.nil? ? nil : shared_user_id
+		@shared_percent = shared_percent.present? ? shared_percent.to_f/100 : 1
+	end
 
-		model Transaction
+	def first_or_nth_import(file)
+		end_point = @current_user.transactions.order("transaction_date DESC").limit(1).pluck(:mint_date)[0]
+		end_point ? iterate(file, end_point) : iterate(file, 'All')
+	end
 
-		# column :email, to: ->(email) { email.downcase }, required: true
-		# column :first_name, as: [ /first.?name/i, /pr(é|e)nom/i ]
-		# column :last_name,  as: [ /last.?name/i, "nom" ]
-		# column :published,  to: ->(published, user) { user.published_at = published ? Time.now : nil }
-		# identifier :email # will update_or_create via :email
-		# when_invalid :skip # or :abort
+	def iterate(file, end_point)
+		spreadsheet = Roo::Spreadsheet.open(file, extension: :csv).sheet(0)
+		(2..spreadsheet.last_row).each do |i|
+			break if spreadsheet.row(i)[0] == end_point
+			save(spreadsheet.row(i))
+	  	end
+	end
 
-		column :user_id, to: current_user.id
-		column :mint_date, to: ->(Date)
-		column :mint_description, to: ->(Description)
-		column :mint_original_description, to: ->(Original Description)
-		column :mint_amount, to: ->(Amount) { Amount.to_f }
-		column :mint_transaction_type, to: ->(Transaction Type)
-		column :mint_category, to: ->(Category)
-		column :mint_account_name, to: ->(Account Name)
-		column :mint_labels, to: ->(Labels)
-		column :mint_notes, to: ->(Notes)
-		column :day_number_of_week, to: ->(Date) { Date }
-		column :day_number_of_month, to: ->(Date) { Date.split("/")[1].to_i }
-		column :day_of_week, to: ->(Date) { Date }
-		column :month, to: ->(Date) { Date }
-		column :month_number, to: ->(Date) { Date.split("/")[0].to_i }
-		column :year, to: ->(Date) { Date.split("/")[2].to_i }
+	def save(row)
+		shared_cost = row[7] == 'Shared CC' ? true : false
+		date = Date.new(row[0].split("/")[2].to_i, row[0].split("/")[0].to_i, row[0].split("/")[1].to_i)
+		attributes = {
+	    	:mint_date => row[0],
+	    	:mint_description => row[1],
+	    	:mint_original_description => row[2],
+			:mint_amount => row[3].to_f,
+			:mint_transaction_type => row[4],
+			:mint_category => row[5],
+			:mint_account_name => row[6],
+			:mint_labels => row[7],
+			:mint_notes => row[8],
+			:transaction_date => date,
+			:day_number_of_week => date.wday,
+			:day_number_of_month => date.strftime('%d'),
+			:day_of_week => date.strftime('%a'),
+			:month => date.strftime('%b'),
+			:month_number => date.month,
+			:year => date.year,
+			:transaction_amount => row[3].to_f,
+			:adjusted_transaction_amount => row[3].to_f * @shared_percent,
+			:transaction_abs_amount => row[3].to_f.abs,
+			:transaction_debit_credit => row[4],
+			:category => row[5],
+			:fabricated_id => "#{row[2]}-#{row[4]}-#{date.strftime('%b')}-#{date.year}",
+			:fabricated_price_id => "#{row[3]}-#{row[2]}-#{row[4]}-#{date.strftime('%b')}-#{date.year}",
+			:user_id => @current_user.id
+	    }
+	    shared_attributes = {
+	    	:shared_cost => shared_cost,
+			:shared_percent => @shared_percent,
+			:shared_user_id => @shared_user_id
+	    }
+	    t = Transaction.new
+	    t.attributes = attributes
+	    t.save!
+	    t.update_attributes(shared_attributes) if shared_cost
+	    save_labels(row[7], t.id)
+	end
 
-		identifier :user_id, :mint_original_description, :mint_transaction_type
+	def save_labels(data, t_id)
+		data.split(" ").each do |label|
+			attributes = {
+				:name => label,
+				:transaction_id => t_id,
+				:user_id => @current_user.id,
+				:mint => true
+			}
+			Label.create(attributes)
+		end
 	end
 
 end
-
-"day_number_of_week"
-    t.integer  "day_number_of_month"
-    t.string   "day_of_week"
-    t.string   "month"
-    t.integer  "month_number"
-    t.integer  "year"

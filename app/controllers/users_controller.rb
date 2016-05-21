@@ -15,6 +15,7 @@ class UsersController < ApplicationController
 
   def edit
     @user = User.find(current_user.id)
+    @shared_users = User.where("id != ?", @user.id)
     render :settings
   end
 

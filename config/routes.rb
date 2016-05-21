@@ -7,7 +7,11 @@ Rails.application.routes.draw do
   get '/signup' => 'users#new'
   post '/users' => 'users#create'
 
-  get '/' => 'users#show'
+  get '/' => 'transactions#index'
   get '/settings' => 'users#edit'
+
+  resources :transactions do
+    collection { post :import_csv }
+  end
 
 end

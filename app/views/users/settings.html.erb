@@ -1,0 +1,12 @@
+<%= form_tag import_csv_transactions_path, multipart: true do %>
+  <%= file_field_tag :file %>
+  <p>
+  	Shared User:
+  	<%= select_tag :shared_user_id, options_from_collection_for_select(@shared_users, :id, :name), include_blank: true %>
+  </p>
+  <p>
+	Shared Percent:
+	<%= number_field_tag :shared_percent, nil, min:1, max:100 %>%
+  </p>
+  <%= submit_tag "Import" %>
+<% end %>

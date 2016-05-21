@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160506044447) do
+ActiveRecord::Schema.define(version: 20160521170608) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -45,8 +45,7 @@ ActiveRecord::Schema.define(version: 20160506044447) do
     t.float    "transaction_amount"
     t.float    "transaction_abs_amount"
     t.string   "transaction_debit_credit"
-    t.string   "shared_cost"
-    t.string   "boolean"
+    t.boolean  "shared_cost"
     t.float    "shared_percent"
     t.integer  "shared_user_id"
     t.string   "financial_institution"
@@ -54,8 +53,11 @@ ActiveRecord::Schema.define(version: 20160506044447) do
     t.string   "category"
     t.string   "fabricated_id"
     t.boolean  "possible_duplicate"
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.float    "adjusted_transaction_amount"
+    t.string   "fabricated_price_id"
+    t.date     "transaction_date"
   end
 
   create_table "users", force: :cascade do |t|
